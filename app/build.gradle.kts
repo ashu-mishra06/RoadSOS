@@ -81,4 +81,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
     implementation("com.google.android.gms:play-services-maps:19.0.0")
     implementation("com.google.maps.android:maps-compose:4.3.3")
+
+    // location dependency
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 }

@@ -14,8 +14,25 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.roadsos.ui.components.BottomNavBar
 
+//new import
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
+import com.example.roadsos.viewmodel.LocationViewModel
+
+import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun HomeScreen(navController: NavController) {
+
+    val viewModel: LocationViewModel = viewModel()
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchLocation()
+    }
+
+    val location by viewModel.location.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -66,6 +83,17 @@ fun HomeScreen(navController: NavController) {
 
                     Text(
                         text = "ACTIVE",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color.Green
+                    )
+
+                    Text(
+                        text =
+                            location?.let {
+                                "Lat: ${it.first}, Lon: ${it.second}"
+                            } ?: "Fetching location...",
+
+
                         style = MaterialTheme.typography.headlineMedium,
                         color = Color.Green
                     )
