@@ -15,7 +15,7 @@ The final model was converted into TensorFlow Lite (.tflite) format for deployme
 - Crash_Detection_Final.ipynb
   - Training and evaluation notebook
 
-- Generate_Spectrogram.ipynb
+- Example_Spectrograms.ipynb
   - Visualization notebook for audio spectrogram generation
 
 - crash_detector_model.tflite
