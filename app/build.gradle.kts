@@ -85,4 +85,18 @@ dependencies {
     // location dependency
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    //tflite
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+
+    //ui
+    implementation("androidx.compose.material:material-icons-extended")
+
+    //maps integration
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation("com.google.maps.android:maps-compose:4.4.1")
+
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }
