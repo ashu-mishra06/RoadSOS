@@ -1,4 +1,4 @@
-# 🚨 RoadSOS — Offline AI Crash Emergency Assistant
+# RoadSOS — Offline AI Crash Emergency Assistant
 
 <div align="center">
 
@@ -16,7 +16,7 @@
 
 ---
 
-## 🌟 What is RoadSOS?
+##  What is RoadSOS?
 
 **RoadSOS** is an Android-based emergency assistant designed to detect possible road accidents using **on-device AI crash sound detection** and trigger a smart emergency response flow.
 
@@ -26,7 +26,7 @@ RoadSOS is designed for situations where every second matters.
 
 ---
 
-## 🔥 Core Idea
+## Core Idea
 
 ```text
 Crash detected → Countdown starts → User can cancel → Emergency mode activates
@@ -42,7 +42,7 @@ RoadSOS focuses on:
 
 ---
 
-## 🔄 RoadSOS Emergency Flow
+## RoadSOS Emergency Flow
 
 ```text
 ┌────────────────────────────┐
@@ -89,9 +89,9 @@ RoadSOS focuses on:
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
-### 🧠 AI Crash Detection
+###  AI Crash Detection
 
 RoadSOS continuously monitors crash-like sounds using on-device audio processing.
 
@@ -144,7 +144,7 @@ RoadSOS fetches the user's current location and uses it during the emergency flo
 
 ---
 
-### 🗺️ Emergency Radar Map
+###  Emergency Radar Map
 
 The Map screen shows a creative radar-style emergency service visualization.
 
@@ -241,7 +241,7 @@ No unnecessary cloud dependency is required for the prototype.
 
 ---
 
-## ⚡ Internal Working
+##  Internal Working
 
 ```text
 ┌─────────────────────────────┐
@@ -296,7 +296,7 @@ No unnecessary cloud dependency is required for the prototype.
 
 ---
 
-## 🧱 System Architecture
+##  System Architecture
 
 ```text
                           ┌──────────────────────┐
@@ -341,7 +341,7 @@ Other Modules:
 
 ---
 
-## 📱 Screens / Modules
+##  Screens / Modules
 
 ```text
 RoadSOS
@@ -370,7 +370,7 @@ RoadSOS
 
 ---
 
-## 🧩 Tech Stack
+##  Tech Stack
 
 | Layer              | Technology                  |
 | ------------------ | --------------------------- |
@@ -387,7 +387,7 @@ RoadSOS
 
 ---
 
-## 🏗️ Project Structure
+##  Project Structure
 
 ```text
 com.example.roadsos
@@ -442,7 +442,7 @@ com.example.roadsos
 
 ---
 
-## 🛡️ Required Permissions
+##  Required Permissions
 
 RoadSOS requires the following permissions for full functionality:
 
@@ -461,7 +461,7 @@ RoadSOS requires the following permissions for full functionality:
 
 ---
 
-## 🧪 Prototype Testing Guide
+##  Prototype Testing Guide
 
 ### 1. Install APK
 
@@ -505,7 +505,7 @@ For best results:
 ---
 
 
-## 🎯 Why RoadSOS?
+##  Why RoadSOS?
 
 Road accidents often require immediate response, but many emergency systems depend on manual action or internet availability.
 
@@ -548,7 +548,7 @@ RoadSOS is especially useful for:
 
 ---
 
-## 🧑‍💻 How to Run Locally
+##  How to Run Locally
 
 ### Requirements
 
@@ -606,19 +606,19 @@ Team Name: Fuzeppers
 
 Members:
 
-🛩️ Ashutosh Mishra {databse and app integration}
+ Ashutosh Mishra {databse and app integration}
 
-✈️ Satvik Jain {ML and documentation}
+ Satvik Jain {ML and documentation}
 
-🪂 Arpit Singh Bhadoriya {UI integration}
+ Arpit Singh Bhadoriya {UI integration}
 
-🛸 Vivek Jhangela {frontend and app integration}
+ Vivek Jhangela {frontend and app integration}
 
 ```
 
 ---
 
-## ⚠️ Disclaimer
+##  Disclaimer
 
 RoadSOS is currently a prototype built for learning, testing, and hackathon demonstration purposes.
 
