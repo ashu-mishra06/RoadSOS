@@ -10,6 +10,7 @@
 ![Kotlin](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-7F52FF?style=for-the-badge\&logo=kotlin\&logoColor=white)
 ![AI](https://img.shields.io/badge/AI-On--Device-FF1744?style=for-the-badge)
 ![Offline](https://img.shields.io/badge/Offline--First-Emergency%20Ready-00C853?style=for-the-badge)
+![Prototype](https://img.shields.io/badge/Status-Prototype-blue?style=for-the-badge)
 
 </div>
 
@@ -17,21 +18,73 @@
 
 ## 🌟 What is RoadSOS?
 
-**RoadSOS** is an Android-based emergency assistant designed to detect possible road accidents using **on-device AI crash sound detection** and trigger an emergency flow.
+**RoadSOS** is an Android-based emergency assistant designed to detect possible road accidents using **on-device AI crash sound detection** and trigger a smart emergency response flow.
 
-It listens for crash-like sounds, starts a safety countdown, allows the user to cancel false alerts, and then activates emergency mode if the countdown completes.
+It listens for crash-like sounds, starts a safety countdown, allows the user to cancel false alerts, and activates emergency mode if the countdown completes.
 
 RoadSOS is designed for situations where every second matters.
 
-```mermaid
-flowchart LR
-    A[Crash Sound Detected] --> B[AI Confidence Check]
-    B --> C[Safety Countdown]
-    C -->|Cancelled| D[Return to Normal]
-    C -->|Not Cancelled| E[Emergency Mode]
-    E --> F[Fetch Location]
-    F --> G[Find Nearby Services]
-    G --> H[Prepare Emergency Alert]
+---
+
+## 🔥 Core Idea
+
+```text
+Crash detected → Countdown starts → User can cancel → Emergency mode activates
+```
+
+RoadSOS focuses on:
+
+* Local AI-based crash sound monitoring
+* Emergency countdown before alert activation
+* Offline-first emergency service assistance
+* User medical profile for emergency context
+* Clean and fast Android experience
+
+---
+
+## 🔄 RoadSOS Emergency Flow
+
+```text
+┌────────────────────────────┐
+│    Crash-like Sound Heard   │
+└──────────────┬─────────────┘
+               │
+               ▼
+┌────────────────────────────┐
+│     AI Confidence Check     │
+└──────────────┬─────────────┘
+               │
+               ▼
+┌────────────────────────────┐
+│      Safety Countdown       │
+└──────────────┬─────────────┘
+               │
+       ┌───────┴────────┐
+       │                │
+       ▼                ▼
+┌──────────────┐  ┌────────────────────┐
+│ User Cancels │  │ No Cancellation    │
+└──────┬───────┘  └─────────┬──────────┘
+       │                    │
+       ▼                    ▼
+┌──────────────┐  ┌────────────────────┐
+│ Normal Mode  │  │ Emergency Mode     │
+└──────────────┘  └─────────┬──────────┘
+                            │
+                            ▼
+                  ┌────────────────────┐
+                  │ Fetch Location     │
+                  └─────────┬──────────┘
+                            │
+                            ▼
+                  ┌────────────────────┐
+                  │ Find Nearby Help   │
+                  └─────────┬──────────┘
+                            │
+                            ▼
+                  ┌────────────────────┐
+                  │ Prepare SOS Alert  │
+                  └────────────────────┘
 ```
 
 ---
@@ -45,7 +98,7 @@ RoadSOS continuously monitors crash-like sounds using on-device audio processing
 * Local audio monitoring
 * Crash confidence scoring
 * Background listening through foreground service
-* Reduces dependency on internet-based systems
+* Reduced dependency on internet-based detection systems
 
 ---
 
@@ -54,10 +107,16 @@ RoadSOS continuously monitors crash-like sounds using on-device audio processing
 When a possible crash is detected, RoadSOS starts a safety countdown before declaring an emergency.
 
 ```text
-Crash Detected → Countdown Starts → User Can Cancel → Emergency Activated
+Crash Detected
+      ↓
+Countdown Starts
+      ↓
+User Can Cancel
+      ↓
+Emergency Activated
 ```
 
-This helps reduce false positives during testing and real-world usage.
+This helps reduce false positives during real-world usage and prototype testing.
 
 ---
 
@@ -93,6 +152,7 @@ The Map screen shows a creative radar-style emergency service visualization.
 * Nearby emergency services as radar dots
 * Offline emergency service data support
 * External map and route opening
+* Eye-catching emergency dashboard feel
 
 ---
 
@@ -135,13 +195,159 @@ No unnecessary cloud dependency is required for the prototype.
 
 ---
 
+## 🧭 App Navigation Flow
+
+```text
+┌──────────────────┐
+│    App Launch    │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ Profile Complete?│
+└───────┬──────────┘
+        │
+   ┌────┴─────┐
+   │          │
+   ▼          ▼
+┌──────┐  ┌────────────────────┐
+│ Yes  │  │ No                 │
+└──┬───┘  └─────────┬──────────┘
+   │                │
+   │                ▼
+   │      ┌────────────────────┐
+   │      │ Profile Setup      │
+   │      └─────────┬──────────┘
+   │                │
+   ▼                ▼
+┌─────────────────────────────┐
+│          Home Screen         │
+└─────────────┬───────────────┘
+              │
+   ┌──────────┴───────────┐
+   │                      │
+   ▼                      ▼
+┌──────────────┐   ┌────────────────┐
+│ Map Screen   │   │ Settings Screen│
+└──────────────┘   └───────┬────────┘
+                           │
+          ┌────────────────┼────────────────┐
+          │                │                │
+          ▼                ▼                ▼
+   ┌─────────────┐  ┌──────────────┐  ┌──────────────┐
+   │ Profile View│  │ Permissions  │  │ Clear Data   │
+   └─────────────┘  └──────────────┘  └──────────────┘
+```
+
+---
+
+## ⚡ Internal Working
+
+```text
+┌─────────────────────────────┐
+│   AudioMonitoringService    │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│    AudioRecorderManager     │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│       Audio Chunks          │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│    TensorFlow Lite Helper   │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│       Crash Score           │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│ Consecutive Detection Filter│
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│    EmergencyEventManager    │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│      EmergencyViewModel     │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│    Countdown Overlay UI     │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│      Emergency Mode         │
+└─────────────────────────────┘
+```
+
+---
+
+## 🧱 System Architecture
+
+```text
+                          ┌──────────────────────┐
+                          │  Jetpack Compose UI  │
+                          └──────────┬───────────┘
+                                     │
+                                     ▼
+                          ┌──────────────────────┐
+                          │      ViewModels      │
+                          └───────┬───────┬──────┘
+                                  │       │
+                                  │       ▼
+                                  │   ┌──────────────────────┐
+                                  │   │ Profile DataStore    │
+                                  │   └──────────────────────┘
+                                  │
+                                  ▼
+                          ┌──────────────────────┐
+                          │ Emergency State Flow │
+                          └──────────┬───────────┘
+                                     ▲
+                                     │
+┌──────────────────────┐     ┌───────┴──────────┐
+│ Audio Monitoring     │────▶│ TensorFlow Helper │
+│ Foreground Service   │     └──────────────────┘
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ AudioRecorderManager │
+└──────────────────────┘
+
+Other Modules:
+┌──────────────────────┐
+│ Location Provider    │
+├──────────────────────┤
+│ Offline Service DB   │
+├──────────────────────┤
+│ Map Intent Helper    │
+└──────────────────────┘
+```
+
+---
+
 ## 📱 Screens / Modules
 
 ```text
 RoadSOS
 │
 ├── Home Screen
-│   ├── Protection status
+│   ├── Minimal protection status
 │   ├── Current location
 │   ├── Crash detection status
 │   └── Animated SOS button
@@ -181,24 +387,57 @@ RoadSOS
 
 ---
 
+## 🏗️ Project Structure
 
-## ⚡ Emergency Flow
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant App
-    participant AudioService
-    participant AI
-    participant EmergencyManager
-
-    AudioService->>AI: Analyze audio chunks
-    AI-->>AudioService: Crash confidence score
-    AudioService->>EmergencyManager: Trigger crash event
-    EmergencyManager->>App: Start countdown
-    User-->>App: Cancel if false alarm
-    App->>EmergencyManager: Declare emergency if countdown ends
-    EmergencyManager->>App: Show emergency mode
+```text
+com.example.roadsos
+│
+├── MainActivity.kt
+│
+├── navigation
+│   └── AppNavigation.kt
+│
+├── ui
+│   ├── screens
+│   │   ├── home
+│   │   │   └── HomeScreen.kt
+│   │   ├── map
+│   │   │   └── MapScreen.kt
+│   │   ├── profile
+│   │   │   ├── ProfileSetupScreen.kt
+│   │   │   └── ProfileViewScreen.kt
+│   │   └── settings
+│   │       └── SettingsScreen.kt
+│   │
+│   ├── components
+│   │   ├── BottomNavBar.kt
+│   │   └── EmergencyOverlay.kt
+│   │
+│   └── theme
+│
+├── services
+│   └── AudioMonitoringService.kt
+│
+├── utils
+│   ├── AudioRecorderManager.kt
+│   ├── MapIntentHelper.kt
+│   └── CategoryUtils.kt
+│
+├── ml
+│   └── TensorflowHelper.kt
+│
+├── data
+│   ├── local
+│   └── profile
+│       ├── UserProfile.kt
+│       └── UserProfileDataStore.kt
+│
+└── viewmodel
+    ├── EmergencyViewModel.kt
+    ├── EmergencyEventManager.kt
+    ├── LocationViewModel.kt
+    ├── EmergencyServicesViewModel.kt
+    └── UserProfileViewModel.kt
 ```
 
 ---
@@ -265,26 +504,6 @@ For best results:
 
 ---
 
-## 📸 Screenshots
-
-Add your app screenshots here:
-
-```text
-assets/home_screen.png
-assets/map_screen.png
-assets/settings_screen.png
-assets/profile_screen.png
-```
-
-Example:
-
-```md
-<img src="assets/home_screen.png" width="220"/>
-<img src="assets/map_screen.png" width="220"/>
-<img src="assets/settings_screen.png" width="220"/>
-```
-
----
 
 ## 🎯 Why RoadSOS?
 
@@ -370,6 +589,12 @@ Release APK:
 ./gradlew assembleRelease
 ```
 
+Debug APK output:
+
+```text
+app/build/outputs/apk/debug/app-debug.apk
+```
+
 ---
 
 ## 👥 Team
@@ -377,12 +602,18 @@ Release APK:
 Add your team details here:
 
 ```text
-Team Name: fuzeppers
+Team Name: Fuzeppers
+
 Members:
-- Ashutosh Mishra 
-- Satvik jain 
-- Arpit Singh Bhadoriya
-- Vivek Jhangela
+
+🛩️ Ashutosh Mishra {databse and app integration}
+
+✈️ Satvik Jain {ML and documentation}
+
+🪂 Arpit Singh Bhadoriya {UI integration}
+
+🛸 Vivek Jhangela {frontend and app integration}
+
 ```
 
 ---
