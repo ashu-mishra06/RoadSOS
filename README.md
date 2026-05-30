@@ -377,12 +377,12 @@ Release APK:
 Add your team details here:
 
 ```text
-Team Name: RoadSOS
+Team Name: fuzeppers
 Members:
-- Name 1
-- Name 2
-- Name 3
-- Name 4
+- Ashutosh Mishra 
+- Satvik jain 
+- Arpit Singh Bhadoriya
+- Vivek Jhangela
 ```
 
 ---
