@@ -1,5 +1,7 @@
 package com.example.roadsos.ui.screens.map
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -7,6 +9,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -14,14 +17,29 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,17 +47,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.roadsos.data.local.NearbyEmergencyService
 import com.example.roadsos.ui.components.BottomNavBar
+import com.example.roadsos.utils.AppText
 import com.example.roadsos.utils.CategoryUtils
 import com.example.roadsos.utils.MapIntentHelper
+import com.example.roadsos.utils.roadSOSThemeColors
+import com.example.roadsos.viewmodel.AppSettingsViewModel
 import com.example.roadsos.viewmodel.EmergencyServicesViewModel
+import kotlinx.coroutines.delay
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
 
 @Composable
 fun MapScreen(
@@ -51,7 +68,77 @@ fun MapScreen(
     val servicesViewModel: EmergencyServicesViewModel =
         viewModel()
 
+    val appSettingsViewModel: AppSettingsViewModel =
+        viewModel()
+
+    val appSettings by
+    appSettingsViewModel.appSettings.collectAsState()
+
+    val language =
+        appSettings.languageCode
+
+    val themeColors =
+        roadSOSThemeColors(appSettings.isDarkMode)
+
+    val topColor by animateColorAsState(
+        targetValue = themeColors.backgroundTop,
+        animationSpec = tween(260),
+        label = "mapTopColor"
+    )
+
+    val middleColor by animateColorAsState(
+        targetValue = themeColors.backgroundMiddle,
+        animationSpec = tween(260),
+        label = "mapMiddleColor"
+    )
+
+    val bottomColor by animateColorAsState(
+        targetValue = themeColors.backgroundBottom,
+        animationSpec = tween(260),
+        label = "mapBottomColor"
+    )
+
+    val textPrimary by animateColorAsState(
+        targetValue = themeColors.textPrimary,
+        animationSpec = tween(260),
+        label = "mapTextPrimary"
+    )
+
+    val textSecondary by animateColorAsState(
+        targetValue = themeColors.textSecondary,
+        animationSpec = tween(260),
+        label = "mapTextSecondary"
+    )
+
+    val cardColor by animateColorAsState(
+        targetValue = themeColors.card,
+        animationSpec = tween(260),
+        label = "mapCardColor"
+    )
+
+    val strongCardColor by animateColorAsState(
+        targetValue = themeColors.cardStrong,
+        animationSpec = tween(260),
+        label = "mapStrongCardColor"
+    )
+
+    val borderColor by animateColorAsState(
+        targetValue = themeColors.border,
+        animationSpec = tween(260),
+        label = "mapBorderColor"
+    )
+
+    val backgroundBrush =
+        Brush.verticalGradient(
+            listOf(
+                topColor,
+                middleColor,
+                bottomColor
+            )
+        )
+
     LaunchedEffect(Unit) {
+        delay(120)
         servicesViewModel.loadNearestServices()
     }
 
@@ -78,23 +165,19 @@ fun MapScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            Color(0xFF07111F),
-                            Color(0xFF0B1220),
-                            Color(0xFF111827)
-                        )
-                    )
-                )
+                .background(backgroundBrush)
                 .padding(padding)
-                .padding(20.dp)
+                .padding(horizontal = 20.dp)
+                .padding(top = 20.dp)
                 .verticalScroll(rememberScrollState())
         ) {
 
             Text(
-                text = "Emergency Map",
-                color = Color.White,
+                text = AppText.t(
+                    language,
+                    "emergency_map"
+                ),
+                color = textPrimary,
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -102,19 +185,30 @@ fun MapScreen(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Offline service radar with external navigation",
-                color = Color.LightGray
+                text = AppText.t(
+                    language,
+                    "map_subtitle"
+                ),
+                color = textSecondary,
+                style = MaterialTheme.typography.bodyMedium
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = borderColor,
+                        shape = RoundedCornerShape(30.dp)
+                    ),
                 shape = RoundedCornerShape(30.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF111C2E)
+                    containerColor = cardColor
                 )
             ) {
+
                 Column(
                     modifier = Modifier.padding(18.dp)
                 ) {
@@ -122,18 +216,22 @@ fun MapScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+
                         Box(
                             modifier = Modifier
                                 .size(12.dp)
                                 .clip(CircleShape)
-                                .background(Color.Green)
+                                .background(Color(0xFF22C55E))
                         )
 
                         Spacer(modifier = Modifier.width(10.dp))
 
                         Text(
-                            text = "Live Emergency Radar",
-                            color = Color.White,
+                            text = AppText.t(
+                                language,
+                                "live_emergency_radar"
+                            ),
+                            color = textPrimary,
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.titleMedium
                         )
@@ -142,8 +240,11 @@ fun MapScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Center is your accident location. Dots are nearby emergency services.",
-                        color = Color.LightGray,
+                        text = AppText.t(
+                            language,
+                            "radar_desc"
+                        ),
+                        color = textSecondary,
                         style = MaterialTheme.typography.bodySmall
                     )
 
@@ -151,6 +252,8 @@ fun MapScreen(
 
                     DynamicEmergencyRadar(
                         services = nearestServices,
+                        isDarkMode = appSettings.isDarkMode,
+                        language = language,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(310.dp)
@@ -158,21 +261,25 @@ fun MapScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    location?.let {
+                    location?.let { currentLocation ->
+
                         Button(
                             onClick = {
                                 MapIntentHelper.openLocation(
                                     context = context,
-                                    latitude = it.first,
-                                    longitude = it.second,
+                                    latitude = currentLocation.first,
+                                    longitude = currentLocation.second,
                                     label = "RoadSOS Accident Location"
                                 )
                             },
+                            modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF2563EB)
+                                containerColor = Color(0xFF2563EB),
+                                contentColor = Color.White
                             ),
-                            shape = RoundedCornerShape(16.dp)
+                            shape = RoundedCornerShape(18.dp)
                         ) {
+
                             Icon(
                                 imageVector = Icons.Default.LocationOn,
                                 contentDescription = null
@@ -180,7 +287,13 @@ fun MapScreen(
 
                             Spacer(modifier = Modifier.width(8.dp))
 
-                            Text("Open Accident Location")
+                            Text(
+                                text = AppText.t(
+                                    language,
+                                    "open_accident_location"
+                                ),
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 }
@@ -189,8 +302,11 @@ fun MapScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Nearest Emergency Services",
-                color = Color.White,
+                text = AppText.t(
+                    language,
+                    "nearest_emergency_services"
+                ),
+                color = textPrimary,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -198,8 +314,11 @@ fun MapScreen(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Minimal top 3 services from each category",
-                color = Color.Gray,
+                text = AppText.t(
+                    language,
+                    "top_services_desc"
+                ),
+                color = textSecondary,
                 style = MaterialTheme.typography.bodySmall
             )
 
@@ -210,13 +329,17 @@ fun MapScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFF1F2937)
+                        containerColor = cardColor
                     ),
-                    shape = RoundedCornerShape(18.dp)
+                    shape = RoundedCornerShape(20.dp)
                 ) {
+
                     Text(
-                        text = "Loading emergency services from offline database...",
-                        color = Color.LightGray,
+                        text = AppText.t(
+                            language,
+                            "loading_services"
+                        ),
+                        color = textSecondary,
                         modifier = Modifier.padding(16.dp)
                     )
                 }
@@ -229,14 +352,17 @@ fun MapScreen(
                         entry.key
 
                     val services =
-                        entry.value.take(3)
+                        entry.value
+                            .sortedBy { it.distance }
+                            .take(3)
 
                     if (services.isNotEmpty()) {
 
                         Text(
                             text = CategoryUtils.readableName(category),
-                            color = Color.Cyan,
-                            fontWeight = FontWeight.Bold
+                            color = Color(0xFF0EA5E9),
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleSmall
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -245,6 +371,11 @@ fun MapScreen(
 
                             MinimalServiceCard(
                                 service = service,
+                                language = language,
+                                textPrimary = textPrimary,
+                                textSecondary = textSecondary,
+                                cardColor = strongCardColor,
+                                borderColor = borderColor,
                                 onMapClick = {
                                     MapIntentHelper.openLocation(
                                         context = context,
@@ -268,7 +399,7 @@ fun MapScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(100.dp))
         }
     }
 }
@@ -276,6 +407,8 @@ fun MapScreen(
 @Composable
 private fun DynamicEmergencyRadar(
     services: List<NearbyEmergencyService>,
+    isDarkMode: Boolean,
+    language: String,
     modifier: Modifier = Modifier
 ) {
     val infiniteTransition =
@@ -287,7 +420,7 @@ private fun DynamicEmergencyRadar(
         targetValue = 1.0f,
         animationSpec = infiniteRepeatable(
             animation = tween(
-                durationMillis = 1700,
+                durationMillis = 2600,
                 easing = LinearEasing
             ),
             repeatMode = RepeatMode.Restart
@@ -301,7 +434,7 @@ private fun DynamicEmergencyRadar(
         targetValue = 360f,
         animationSpec = infiniteRepeatable(
             animation = tween(
-                durationMillis = 3600,
+                durationMillis = 6200,
                 easing = LinearEasing
             ),
             repeatMode = RepeatMode.Restart
@@ -309,19 +442,58 @@ private fun DynamicEmergencyRadar(
         label = "scannerRotation"
     )
 
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(
-                Brush.radialGradient(
-                    listOf(
-                        Color(0xFF123A5A),
-                        Color(0xFF071827),
-                        Color(0xFF020617)
-                    )
+    val radarBackground =
+        if (isDarkMode) {
+            Brush.radialGradient(
+                listOf(
+                    Color(0xFF123A5A),
+                    Color(0xFF071827),
+                    Color(0xFF020617)
                 )
             )
+        } else {
+            Brush.radialGradient(
+                listOf(
+                    Color(0xFFE0F2FE),
+                    Color(0xFFF8FAFC),
+                    Color(0xFFFFFFFF)
+                )
+            )
+        }
+
+    val gridColor =
+        if (isDarkMode) {
+            Color(0xFF334155).copy(alpha = 0.35f)
+        } else {
+            Color(0xFF94A3B8).copy(alpha = 0.30f)
+        }
+
+    val ringColor =
+        if (isDarkMode) {
+            Color(0xFF38BDF8)
+        } else {
+            Color(0xFF0284C7)
+        }
+
+    val centerColor =
+        Color(0xFF22C55E)
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(28.dp))
+            .background(radarBackground)
+            .border(
+                width = 1.dp,
+                color =
+                    if (isDarkMode) {
+                        Color.White.copy(alpha = 0.08f)
+                    } else {
+                        Color(0xFFCBD5E1)
+                    },
+                shape = RoundedCornerShape(28.dp)
+            )
     ) {
+
         Canvas(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -334,106 +506,95 @@ private fun DynamicEmergencyRadar(
             val maxRadius =
                 min(size.width, size.height) * 0.43f
 
-            val ringStroke =
-                Stroke(
-                    width = 2.5f,
-                    pathEffect = PathEffect.dashPathEffect(
-                        intervals = floatArrayOf(16f, 12f),
-                        phase = 0f
-                    )
-                )
-
-            // Background cyber grid
-            val gridColor =
-                Color(0xFF1E293B).copy(alpha = 0.32f)
-
             var x = 0f
+
             while (x < size.width) {
+
                 drawLine(
                     color = gridColor,
                     start = Offset(x, 0f),
                     end = Offset(x, size.height),
-                    strokeWidth = 1.2f
+                    strokeWidth = 1f
                 )
+
                 x += size.width / 9f
             }
 
             var y = 0f
+
             while (y < size.height) {
+
                 drawLine(
                     color = gridColor,
                     start = Offset(0f, y),
                     end = Offset(size.width, y),
-                    strokeWidth = 1.2f
+                    strokeWidth = 1f
                 )
+
                 y += size.height / 7f
             }
 
-            // Outer emergency glow
             drawCircle(
-                color = Color(0xFF0EA5E9).copy(alpha = 0.08f),
-                radius = maxRadius * 1.18f,
+                color = ringColor.copy(alpha = 0.08f),
+                radius = maxRadius * 1.15f,
                 center = center
             )
 
-            // Pulse wave
             drawCircle(
-                color = Color(0xFF38BDF8).copy(alpha = 0.18f * (1f - pulse)),
+                color = ringColor.copy(alpha = 0.17f * (1f - pulse)),
                 radius = maxRadius * pulse,
                 center = center
             )
 
-            // Radar rings
             drawCircle(
-                color = Color(0xFF38BDF8).copy(alpha = 0.32f),
+                color = ringColor.copy(alpha = 0.30f),
                 radius = maxRadius,
                 center = center,
-                style = ringStroke
+                style = Stroke(width = 2.4f)
             )
 
             drawCircle(
-                color = Color(0xFF38BDF8).copy(alpha = 0.24f),
+                color = ringColor.copy(alpha = 0.24f),
                 radius = maxRadius * 0.72f,
-                center = center,
-                style = Stroke(width = 2.2f)
-            )
-
-            drawCircle(
-                color = Color(0xFF38BDF8).copy(alpha = 0.22f),
-                radius = maxRadius * 0.46f,
                 center = center,
                 style = Stroke(width = 2f)
             )
 
             drawCircle(
-                color = Color(0xFF38BDF8).copy(alpha = 0.18f),
-                radius = maxRadius * 0.24f,
+                color = ringColor.copy(alpha = 0.20f),
+                radius = maxRadius * 0.46f,
                 center = center,
                 style = Stroke(width = 1.8f)
             )
 
-            // Cross axis
+            drawCircle(
+                color = ringColor.copy(alpha = 0.16f),
+                radius = maxRadius * 0.24f,
+                center = center,
+                style = Stroke(width = 1.5f)
+            )
+
             drawLine(
-                color = Color(0xFF64748B).copy(alpha = 0.32f),
+                color = gridColor,
                 start = Offset(center.x, center.y - maxRadius),
                 end = Offset(center.x, center.y + maxRadius),
                 strokeWidth = 2f
             )
 
             drawLine(
-                color = Color(0xFF64748B).copy(alpha = 0.32f),
+                color = gridColor,
                 start = Offset(center.x - maxRadius, center.y),
                 end = Offset(center.x + maxRadius, center.y),
                 strokeWidth = 2f
             )
 
-            // Rotating scanner beam
             rotate(
                 degrees = scannerRotation,
                 pivot = center
             ) {
+
                 drawArc(
-                    color = Color(0xFF22D3EE).copy(alpha = 0.22f),
+                    color = ringColor.copy(alpha = 0.16f),
                     startAngle = -22f,
                     sweepAngle = 44f,
                     useCenter = true,
@@ -448,25 +609,24 @@ private fun DynamicEmergencyRadar(
                 )
 
                 drawLine(
-                    color = Color(0xFF67E8F9).copy(alpha = 0.75f),
+                    color = ringColor.copy(alpha = 0.65f),
                     start = center,
                     end = Offset(
                         x = center.x + maxRadius,
                         y = center.y
                     ),
-                    strokeWidth = 4f
+                    strokeWidth = 3.5f
                 )
             }
 
-            // User accident location glow
             drawCircle(
-                color = Color(0xFF22C55E).copy(alpha = 0.20f),
-                radius = 34f + (pulse * 12f),
+                color = centerColor.copy(alpha = 0.20f),
+                radius = 34f + (pulse * 10f),
                 center = center
             )
 
             drawCircle(
-                color = Color(0xFF22C55E),
+                color = centerColor,
                 radius = 15f,
                 center = center
             )
@@ -477,7 +637,6 @@ private fun DynamicEmergencyRadar(
                 center = center
             )
 
-            // Service dots
             services.forEachIndexed { index, service ->
 
                 val angle =
@@ -502,14 +661,14 @@ private fun DynamicEmergencyRadar(
                     categoryColor(service.category)
 
                 drawLine(
-                    color = dotColor.copy(alpha = 0.28f),
+                    color = dotColor.copy(alpha = 0.26f),
                     start = center,
                     end = point,
                     strokeWidth = 2f
                 )
 
                 drawCircle(
-                    color = dotColor.copy(alpha = 0.18f),
+                    color = dotColor.copy(alpha = 0.16f),
                     radius = 25f,
                     center = point
                 )
@@ -534,70 +693,100 @@ private fun DynamicEmergencyRadar(
             }
         }
 
-        // Top glass status row
         Row(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(14.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
             RadarStatusChip(
                 text = "AI RADAR",
-                color = Color(0xFF22D3EE)
+                color = Color(0xFF22D3EE),
+                isDarkMode = isDarkMode
             )
 
             RadarStatusChip(
                 text = "OFFLINE DB",
-                color = Color(0xFF22C55E)
+                color = Color(0xFF22C55E),
+                isDarkMode = isDarkMode
             )
         }
 
-        // Service count badge
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(14.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.Black.copy(alpha = 0.32f))
+                .background(
+                    if (isDarkMode) {
+                        Color.Black.copy(alpha = 0.32f)
+                    } else {
+                        Color.White.copy(alpha = 0.70f)
+                    }
+                )
                 .padding(
                     horizontal = 12.dp,
                     vertical = 8.dp
                 )
         ) {
+
             Text(
-                text = "${services.size} nearby",
-                color = Color.White,
+                text =
+                    "${services.size} ${AppText.t(language, "nearby")}",
+                color =
+                    if (isDarkMode) {
+                        Color.White
+                    } else {
+                        Color(0xFF0F172A)
+                    },
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodySmall
             )
         }
 
-        // Center accident label
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Text(
-                text = "YOU",
-                color = Color.White,
+                text = AppText.t(
+                    language,
+                    "you"
+                ),
+                color =
+                    if (isDarkMode) {
+                        Color.White
+                    } else {
+                        Color(0xFF0F172A)
+                    },
                 fontWeight = FontWeight.ExtraBold,
                 style = MaterialTheme.typography.titleSmall
             )
 
             Text(
-                text = "Accident Point",
-                color = Color(0xFFBBF7D0),
+                text = AppText.t(
+                    language,
+                    "accident_point"
+                ),
+                color = Color(0xFF22C55E),
                 style = MaterialTheme.typography.labelSmall
             )
         }
 
-        // Bottom legend
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(12.dp)
                 .clip(RoundedCornerShape(22.dp))
-                .background(Color.Black.copy(alpha = 0.30f))
+                .background(
+                    if (isDarkMode) {
+                        Color.Black.copy(alpha = 0.30f)
+                    } else {
+                        Color.White.copy(alpha = 0.70f)
+                    }
+                )
                 .padding(
                     horizontal = 12.dp,
                     vertical = 10.dp
@@ -605,19 +794,32 @@ private fun DynamicEmergencyRadar(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             RadarLegendDot(
-                label = "Trauma",
-                color = Color.Red
+                label = AppText.t(
+                    language,
+                    "trauma"
+                ),
+                color = Color.Red,
+                isDarkMode = isDarkMode
             )
 
             RadarLegendDot(
-                label = "Police",
-                color = Color(0xFF60A5FA)
+                label = AppText.t(
+                    language,
+                    "police"
+                ),
+                color = Color(0xFF60A5FA),
+                isDarkMode = isDarkMode
             )
 
             RadarLegendDot(
-                label = "Vehicle",
-                color = Color(0xFF22D3EE)
+                label = AppText.t(
+                    language,
+                    "vehicle"
+                ),
+                color = Color(0xFF22D3EE),
+                isDarkMode = isDarkMode
             )
         }
     }
@@ -626,18 +828,26 @@ private fun DynamicEmergencyRadar(
 @Composable
 private fun RadarStatusChip(
     text: String,
-    color: Color
+    color: Color,
+    isDarkMode: Boolean
 ) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(18.dp))
-            .background(Color.Black.copy(alpha = 0.34f))
+            .background(
+                if (isDarkMode) {
+                    Color.Black.copy(alpha = 0.34f)
+                } else {
+                    Color.White.copy(alpha = 0.72f)
+                }
+            )
             .padding(
                 horizontal = 10.dp,
                 vertical = 7.dp
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
+
         Box(
             modifier = Modifier
                 .size(8.dp)
@@ -649,7 +859,12 @@ private fun RadarStatusChip(
 
         Text(
             text = text,
-            color = Color.White,
+            color =
+                if (isDarkMode) {
+                    Color.White
+                } else {
+                    Color(0xFF0F172A)
+                },
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.labelSmall
         )
@@ -659,11 +874,13 @@ private fun RadarStatusChip(
 @Composable
 private fun RadarLegendDot(
     label: String,
-    color: Color
+    color: Color,
+    isDarkMode: Boolean
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
+
         Box(
             modifier = Modifier
                 .size(8.dp)
@@ -675,7 +892,12 @@ private fun RadarLegendDot(
 
         Text(
             text = label,
-            color = Color.LightGray,
+            color =
+                if (isDarkMode) {
+                    Color.LightGray
+                } else {
+                    Color(0xFF475569)
+                },
             style = MaterialTheme.typography.bodySmall
         )
     }
@@ -684,24 +906,37 @@ private fun RadarLegendDot(
 @Composable
 private fun MinimalServiceCard(
     service: NearbyEmergencyService,
+    language: String,
+    textPrimary: Color,
+    textSecondary: Color,
+    cardColor: Color,
+    borderColor: Color,
     onMapClick: () -> Unit,
     onRouteClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 10.dp),
+            .padding(bottom = 10.dp)
+            .border(
+                width = 1.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(20.dp)
+            ),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF111827)
+            containerColor = cardColor
         ),
-        shape = RoundedCornerShape(18.dp)
+        shape = RoundedCornerShape(20.dp)
     ) {
+
         Column(
             modifier = Modifier.padding(14.dp)
         ) {
+
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 Box(
                     modifier = Modifier
                         .size(12.dp)
@@ -713,7 +948,7 @@ private fun MinimalServiceCard(
 
                 Text(
                     text = service.name,
-                    color = Color.White,
+                    color = textPrimary,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
                 )
@@ -724,9 +959,11 @@ private fun MinimalServiceCard(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 Text(
-                    text = "${"%.2f".format(service.distance)} km away",
-                    color = Color.LightGray,
+                    text =
+                        "${"%.2f".format(service.distance)} ${AppText.t(language, "km_away")}",
+                    color = textSecondary,
                     style = MaterialTheme.typography.bodyMedium
                 )
 
@@ -735,17 +972,24 @@ private fun MinimalServiceCard(
                 Text(
                     text =
                         if (service.isVerified == 1) {
-                            "Verified"
+                            AppText.t(
+                                language,
+                                "verified"
+                            )
                         } else {
-                            "Unverified"
+                            AppText.t(
+                                language,
+                                "unverified"
+                            )
                         },
                     color =
                         if (service.isVerified == 1) {
-                            Color.Green
+                            Color(0xFF22C55E)
                         } else {
                             Color.Gray
                         },
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
@@ -755,23 +999,51 @@ private fun MinimalServiceCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+
                 OutlinedButton(
                     onClick = onMapClick,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(14.dp)
                 ) {
-                    Text("Map")
+
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = null
+                    )
+
+                    Spacer(modifier = Modifier.width(6.dp))
+
+                    Text(
+                        text = AppText.t(
+                            language,
+                            "map"
+                        )
+                    )
                 }
 
                 Button(
                     onClick = onRouteClick,
                     modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF16A34A)
-                    ),
-                    shape = RoundedCornerShape(14.dp)
+                        containerColor = Color(0xFF2563EB),
+                        contentColor = Color.White
+                    )
                 ) {
-                    Text("Route")
+
+                    Icon(
+                        imageVector = Icons.Default.Navigation,
+                        contentDescription = null
+                    )
+
+                    Spacer(modifier = Modifier.width(6.dp))
+
+                    Text(
+                        text = AppText.t(
+                            language,
+                            "route"
+                        )
+                    )
                 }
             }
         }
@@ -781,29 +1053,32 @@ private fun MinimalServiceCard(
 private fun categoryColor(
     category: String
 ): Color {
-    return when (category) {
-        "trauma_l1" ->
-            Color.Red
+    val normalizedCategory =
+        category.lowercase()
 
-        "trauma_l2" ->
-            Color(0xFFFF9800)
+    return when {
+        normalizedCategory.contains("hospital") ||
+                normalizedCategory.contains("trauma") ||
+                normalizedCategory.contains("medical") ->
+            Color(0xFFFF1744)
 
-        "police_station" ->
+        normalizedCategory.contains("police") ->
             Color(0xFF60A5FA)
 
-        "district_emergency" ->
+        normalizedCategory.contains("ambulance") ||
+                normalizedCategory.contains("emergency") ->
             Color(0xFFE879F9)
 
-        "puncture_shop" ->
-            Color(0xFFFACC15)
-
-        "vehicle_repair" ->
+        normalizedCategory.contains("tow") ||
+                normalizedCategory.contains("repair") ||
+                normalizedCategory.contains("vehicle") ||
+                normalizedCategory.contains("puncture") ->
             Color(0xFF22D3EE)
 
-        "vehicle_showroom" ->
-            Color.LightGray
+        normalizedCategory.contains("fire") ->
+            Color(0xFFF97316)
 
         else ->
-            Color.White
+            Color(0xFF22C55E)
     }
 }

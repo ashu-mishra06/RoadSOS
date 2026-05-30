@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
@@ -14,7 +15,17 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,12 +33,27 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -40,14 +66,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.roadsos.ui.components.BottomNavBar
 import com.example.roadsos.ui.components.EmergencyOverlay
+import com.example.roadsos.utils.AppText
+import com.example.roadsos.utils.EmergencyActionStatusManager
+import com.example.roadsos.utils.EmergencyAlertManager
+import com.example.roadsos.utils.EmergencyCallManager
+import com.example.roadsos.utils.roadSOSThemeColors
+import com.example.roadsos.viewmodel.AppSettingsViewModel
 import com.example.roadsos.viewmodel.EmergencyEventManager
 import com.example.roadsos.viewmodel.EmergencyViewModel
 import com.example.roadsos.viewmodel.LocationViewModel
+import com.example.roadsos.viewmodel.UserProfileViewModel
 import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(
-    navController: NavController
+    navController: NavController,
+    emergencyViewModel: EmergencyViewModel
 ) {
     val context =
         LocalContext.current
@@ -55,12 +89,17 @@ fun HomeScreen(
     val locationViewModel: LocationViewModel =
         viewModel()
 
-    val emergencyViewModel: EmergencyViewModel =
+    val appSettingsViewModel: AppSettingsViewModel =
         viewModel()
 
-    LaunchedEffect(Unit) {
-        locationViewModel.fetchLocation()
-    }
+    val userProfileViewModel: UserProfileViewModel =
+        viewModel()
+
+    val appSettings by
+    appSettingsViewModel.appSettings.collectAsState()
+
+    val userProfile by
+    userProfileViewModel.userProfile.collectAsState()
 
     val location by
     locationViewModel.location.collectAsState()
@@ -70,6 +109,85 @@ fun HomeScreen(
 
     val crashEventPending by
     EmergencyEventManager.crashEventPending.collectAsState()
+
+    val emergencyActionStatus by
+    EmergencyActionStatusManager.status.collectAsState()
+
+    val language =
+        appSettings.languageCode
+
+    val themeColors =
+        roadSOSThemeColors(appSettings.isDarkMode)
+
+    val isEmergencyMode =
+        emergencyState.emergencyTriggered
+
+    val backgroundTop by animateColorAsState(
+        targetValue =
+            if (isEmergencyMode) {
+                if (appSettings.isDarkMode) {
+                    Color(0xFF3B0505)
+                } else {
+                    Color(0xFFFFE4E6)
+                }
+            } else {
+                themeColors.backgroundTop
+            },
+        animationSpec = tween(260),
+        label = "homeBackgroundTop"
+    )
+
+    val backgroundMiddle by animateColorAsState(
+        targetValue =
+            if (isEmergencyMode) {
+                if (appSettings.isDarkMode) {
+                    Color(0xFF7F1D1D)
+                } else {
+                    Color(0xFFFFF1F2)
+                }
+            } else {
+                themeColors.backgroundMiddle
+            },
+        animationSpec = tween(260),
+        label = "homeBackgroundMiddle"
+    )
+
+    val backgroundBottom by animateColorAsState(
+        targetValue =
+            if (isEmergencyMode) {
+                if (appSettings.isDarkMode) {
+                    Color(0xFF111827)
+                } else {
+                    Color(0xFFFFFFFF)
+                }
+            } else {
+                themeColors.backgroundBottom
+            },
+        animationSpec = tween(260),
+        label = "homeBackgroundBottom"
+    )
+
+    val textPrimary by animateColorAsState(
+        targetValue = themeColors.textPrimary,
+        animationSpec = tween(260),
+        label = "homeTextPrimary"
+    )
+
+    val textSecondary by animateColorAsState(
+        targetValue = themeColors.textSecondary,
+        animationSpec = tween(260),
+        label = "homeTextSecondary"
+    )
+
+    val cardColor by animateColorAsState(
+        targetValue = themeColors.card,
+        animationSpec = tween(260),
+        label = "homeCardColor"
+    )
+
+    LaunchedEffect(Unit) {
+        locationViewModel.fetchLocation()
+    }
 
     val allPermissionsGranted =
         remember {
@@ -91,8 +209,45 @@ fun HomeScreen(
         }
     }
 
-    val isEmergencyMode =
-        emergencyState.emergencyTriggered
+    var emergencyActionsExecuted by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(
+        emergencyState.emergencyTriggered,
+        userProfile,
+        location,
+        appSettings.isAutoEmergencyCallEnabled
+    ) {
+
+        if (
+            emergencyState.emergencyTriggered &&
+            !emergencyActionsExecuted
+        ) {
+            emergencyActionsExecuted = true
+
+            EmergencyActionStatusManager.reset()
+
+            EmergencyAlertManager.sendEmergencySmsToSavedContacts(
+                context = context,
+                userName = userProfile.name,
+                bloodGroup = userProfile.bloodGroup,
+                emergencyContacts = userProfile.getAllEmergencyContacts(),
+                latitude = location?.first,
+                longitude = location?.second
+            )
+
+            EmergencyCallManager.callEmergencyServiceIfEnabled(
+                context = context,
+                isAutoCallEnabled = appSettings.isAutoEmergencyCallEnabled
+            )
+        }
+
+        if (!emergencyState.emergencyTriggered) {
+            emergencyActionsExecuted = false
+            EmergencyActionStatusManager.reset()
+        }
+    }
 
     var sosPressed by remember {
         mutableStateOf(false)
@@ -112,27 +267,18 @@ fun HomeScreen(
     }
 
     val backgroundBrush =
-        if (isEmergencyMode) {
-            Brush.verticalGradient(
-                listOf(
-                    Color(0xFF3B0505),
-                    Color(0xFF7F1D1D),
-                    Color(0xFF111827)
-                )
+        Brush.verticalGradient(
+            listOf(
+                backgroundTop,
+                backgroundMiddle,
+                backgroundBottom
             )
-        } else {
-            Brush.verticalGradient(
-                listOf(
-                    Color(0xFF07111F),
-                    Color(0xFF0B1220),
-                    Color(0xFF111827)
-                )
-            )
-        }
+        )
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
+
         Scaffold(
             bottomBar = {
                 BottomNavBar(navController)
@@ -157,43 +303,68 @@ fun HomeScreen(
                 ) {
 
                     HomeHeader(
+                        language = language,
                         isEmergencyMode = isEmergencyMode,
-                        isCrashDetected = emergencyState.isCrashDetected
+                        isCrashDetected = emergencyState.isCrashDetected,
+                        textPrimary = textPrimary,
+                        textSecondary = textSecondary
                     )
 
                     Spacer(modifier = Modifier.height(22.dp))
 
                     MinimalProtectionStatusCard(
+                        language = language,
                         isEmergencyMode = isEmergencyMode,
                         isCrashDetected = emergencyState.isCrashDetected,
-                        allPermissionsGranted = allPermissionsGranted
+                        allPermissionsGranted = allPermissionsGranted,
+                        textPrimary = textPrimary,
+                        textSecondary = textSecondary,
+                        cardColor = cardColor
                     )
 
                     Spacer(modifier = Modifier.height(22.dp))
 
                     MinimalLocationCard(
+                        language = language,
                         locationText =
                             location?.let {
                                 "Lat: ${it.first}\nLon: ${it.second}"
-                            } ?: "Fetching GPS location..."
+                            } ?: AppText.t(
+                                language,
+                                "fetching_location"
+                            ),
+                        textPrimary = textPrimary,
+                        textSecondary = textSecondary
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     CrashStatusCard(
+                        language = language,
+                        isDarkMode = appSettings.isDarkMode,
                         isEmergencyMode = isEmergencyMode,
-                        isCrashDetected = emergencyState.isCrashDetected
+                        isCrashDetected = emergencyState.isCrashDetected,
+                        textPrimary = textPrimary,
+                        textSecondary = textSecondary
                     )
 
                     if (isEmergencyMode) {
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        EmergencyActionsCard()
+                        EmergencyActionsCard(
+                            language = language,
+                            autoCallEnabled = appSettings.isAutoEmergencyCallEnabled,
+                            smsStatus = emergencyActionStatus.smsStatus,
+                            callStatus = emergencyActionStatus.callStatus,
+                            smsSentCount = emergencyActionStatus.smsSentCount,
+                            smsFailedCount = emergencyActionStatus.smsFailedCount
+                        )
                     }
                 }
 
                 FloatingSOSButton(
+                    language = language,
                     isEmergencyMode = isEmergencyMode,
                     isCrashDetected = emergencyState.isCrashDetected,
                     modifier = Modifier
@@ -235,8 +406,11 @@ fun HomeScreen(
 
 @Composable
 private fun HomeHeader(
+    language: String,
     isEmergencyMode: Boolean,
-    isCrashDetected: Boolean
+    isCrashDetected: Boolean,
+    textPrimary: Color,
+    textSecondary: Color
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -247,9 +421,12 @@ private fun HomeHeader(
         ) {
 
             Text(
-                text = "RoadSOS",
+                text = AppText.t(
+                    language,
+                    "app_name"
+                ),
                 style = MaterialTheme.typography.headlineLarge,
-                color = Color.White,
+                color = textPrimary,
                 fontWeight = FontWeight.Bold
             )
 
@@ -259,19 +436,28 @@ private fun HomeHeader(
                 text =
                     when {
                         isEmergencyMode ->
-                            "Emergency response active"
+                            AppText.t(
+                                language,
+                                "emergency_response_active"
+                            )
 
                         isCrashDetected ->
-                            "Crash countdown running"
+                            AppText.t(
+                                language,
+                                "crash_countdown_running"
+                            )
 
                         else ->
-                            "Offline AI Crash Detection"
+                            AppText.t(
+                                language,
+                                "home_subtitle"
+                            )
                     },
                 color =
                     if (isEmergencyMode || isCrashDetected) {
-                        Color(0xFFFFCDD2)
+                        Color(0xFFFF6B6B)
                     } else {
-                        Color.LightGray
+                        textSecondary
                     }
             )
         }
@@ -301,24 +487,66 @@ private fun HomeHeader(
 
 @Composable
 private fun MinimalProtectionStatusCard(
+    language: String,
     isEmergencyMode: Boolean,
     isCrashDetected: Boolean,
-    allPermissionsGranted: Boolean
+    allPermissionsGranted: Boolean,
+    textPrimary: Color,
+    textSecondary: Color,
+    cardColor: Color
 ) {
     val statusText =
         when {
-            isEmergencyMode -> "Emergency Active"
-            isCrashDetected -> "Countdown Active"
-            allPermissionsGranted -> "Active"
-            else -> "Permission Needed"
+            isEmergencyMode ->
+                AppText.t(
+                    language,
+                    "emergency_sos_triggered"
+                )
+
+            isCrashDetected ->
+                AppText.t(
+                    language,
+                    "crash_detected"
+                )
+
+            allPermissionsGranted ->
+                AppText.t(
+                    language,
+                    "active"
+                )
+
+            else ->
+                AppText.t(
+                    language,
+                    "permission_needed"
+                )
         }
 
     val subtitleText =
         when {
-            isEmergencyMode -> "RoadSOS response is running"
-            isCrashDetected -> "Safety countdown is in progress"
-            allPermissionsGranted -> "All systems working properly"
-            else -> "Open settings to grant access"
+            isEmergencyMode ->
+                AppText.t(
+                    language,
+                    "emergency_response_active"
+                )
+
+            isCrashDetected ->
+                AppText.t(
+                    language,
+                    "crash_countdown_running"
+                )
+
+            allPermissionsGranted ->
+                AppText.t(
+                    language,
+                    "all_systems_working"
+                )
+
+            else ->
+                AppText.t(
+                    language,
+                    "open_settings_grant_access"
+                )
         }
 
     val dotColor =
@@ -332,7 +560,7 @@ private fun MinimalProtectionStatusCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White.copy(alpha = 0.07f)
+            containerColor = cardColor
         ),
         shape = RoundedCornerShape(22.dp)
     ) {
@@ -359,8 +587,11 @@ private fun MinimalProtectionStatusCard(
             ) {
 
                 Text(
-                    text = "Protection Status",
-                    color = Color.LightGray,
+                    text = AppText.t(
+                        language,
+                        "protection_status"
+                    ),
+                    color = textSecondary,
                     style = MaterialTheme.typography.bodySmall
                 )
 
@@ -368,7 +599,7 @@ private fun MinimalProtectionStatusCard(
 
                 Text(
                     text = statusText,
-                    color = Color.White,
+                    color = textPrimary,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -376,7 +607,7 @@ private fun MinimalProtectionStatusCard(
 
             Text(
                 text = subtitleText,
-                color = Color.LightGray,
+                color = textSecondary,
                 style = MaterialTheme.typography.bodySmall
             )
         }
@@ -385,7 +616,10 @@ private fun MinimalProtectionStatusCard(
 
 @Composable
 private fun MinimalLocationCard(
-    locationText: String
+    language: String,
+    locationText: String,
+    textPrimary: Color,
+    textSecondary: Color
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -413,8 +647,11 @@ private fun MinimalLocationCard(
         ) {
 
             Text(
-                text = "Current Location",
-                color = Color.White,
+                text = AppText.t(
+                    language,
+                    "current_location"
+                ),
+                color = textPrimary,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium
             )
@@ -423,7 +660,7 @@ private fun MinimalLocationCard(
 
             Text(
                 text = locationText,
-                color = Color.LightGray,
+                color = textSecondary,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -439,28 +676,47 @@ private fun MinimalLocationCard(
 
 @Composable
 private fun CrashStatusCard(
+    language: String,
+    isDarkMode: Boolean,
     isEmergencyMode: Boolean,
-    isCrashDetected: Boolean
+    isCrashDetected: Boolean,
+    textPrimary: Color,
+    textSecondary: Color
 ) {
+    val cardBackground =
+        when {
+            isEmergencyMode ->
+                if (isDarkMode) {
+                    Color(0xFF5A1111)
+                } else {
+                    Color(0xFFFFE4E6)
+                }
+
+            isDarkMode ->
+                Color(0xFF241A1A)
+
+            else ->
+                Color.White.copy(alpha = 0.94f)
+        }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor =
-                if (isEmergencyMode) {
-                    Color(0xFF5A1111)
-                } else {
-                    Color(0xFF241A1A)
-                }
+            containerColor = cardBackground
         ),
         shape = RoundedCornerShape(28.dp)
     ) {
+
         Column(
             modifier = Modifier.padding(22.dp)
         ) {
 
             Text(
-                text = "Crash Detection",
-                color = Color.White,
+                text = AppText.t(
+                    language,
+                    "crash_detection"
+                ),
+                color = textPrimary,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -468,26 +724,37 @@ private fun CrashStatusCard(
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
-                text = when {
-                    isEmergencyMode ->
-                        "Emergency SOS Triggered"
+                text =
+                    when {
+                        isEmergencyMode ->
+                            AppText.t(
+                                language,
+                                "emergency_sos_triggered"
+                            )
 
-                    isCrashDetected ->
-                        "Crash Detected"
+                        isCrashDetected ->
+                            AppText.t(
+                                language,
+                                "crash_detected"
+                            )
 
-                    else ->
-                        "No crash detected"
-                },
-                color = when {
-                    isEmergencyMode ->
-                        Color(0xFFFFCDD2)
+                        else ->
+                            AppText.t(
+                                language,
+                                "no_crash_detected"
+                            )
+                    },
+                color =
+                    when {
+                        isEmergencyMode ->
+                            Color(0xFFFF1744)
 
-                    isCrashDetected ->
-                        Color(0xFFF97316)
+                        isCrashDetected ->
+                            Color(0xFFF97316)
 
-                    else ->
-                        Color.Green
-                },
+                        else ->
+                            Color(0xFF22C55E)
+                    },
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -498,22 +765,38 @@ private fun CrashStatusCard(
                 text =
                     when {
                         isEmergencyMode ->
-                            "Emergency alert flow is active. Nearest services can be checked on the map."
+                            AppText.t(
+                                language,
+                                "emergency_alert_active"
+                            )
 
                         isCrashDetected ->
-                            "Safety countdown is running. Cancel if this is a false alarm."
+                            AppText.t(
+                                language,
+                                "countdown_warning"
+                            )
 
                         else ->
-                            "RoadSOS is listening locally using on-device AI."
+                            AppText.t(
+                                language,
+                                "listening_ai"
+                            )
                     },
-                color = Color.LightGray
+                color = textSecondary
             )
         }
     }
 }
 
 @Composable
-private fun EmergencyActionsCard() {
+private fun EmergencyActionsCard(
+    language: String,
+    autoCallEnabled: Boolean,
+    smsStatus: String,
+    callStatus: String,
+    smsSentCount: Int,
+    smsFailedCount: Int
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -527,7 +810,10 @@ private fun EmergencyActionsCard() {
         ) {
 
             Text(
-                text = "Emergency Actions Started",
+                text = AppText.t(
+                    language,
+                    "emergency_actions_started"
+                ),
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium
@@ -536,8 +822,94 @@ private fun EmergencyActionsCard() {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "RoadSOS has prepared your emergency alert, current location and nearest emergency services.",
+                text = AppText.t(
+                    language,
+                    "emergency_actions_desc"
+                ),
                 color = Color(0xFFFFCDD2)
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            EmergencyStatusRow(
+                label = "SMS Status",
+                value = smsStatus,
+                positive = smsSentCount > 0
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            EmergencyStatusRow(
+                label = "SMS Count",
+                value = "Sent: $smsSentCount | Failed: $smsFailedCount",
+                positive = smsSentCount > 0 && smsFailedCount == 0
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            EmergencyStatusRow(
+                label = "Call Status",
+                value = callStatus,
+                positive = autoCallEnabled && callStatus.contains(
+                    "started",
+                    ignoreCase = true
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmergencyStatusRow(
+    label: String,
+    value: String,
+    positive: Boolean
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color.White.copy(alpha = 0.08f))
+            .padding(
+                horizontal = 12.dp,
+                vertical = 10.dp
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Box(
+            modifier = Modifier
+                .size(10.dp)
+                .clip(CircleShape)
+                .background(
+                    if (positive) {
+                        Color(0xFF22C55E)
+                    } else {
+                        Color(0xFFFFB020)
+                    }
+                )
+        )
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+
+            Text(
+                text = label,
+                color = Color(0xFFFFCDD2),
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = value,
+                color = Color.White,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.SemiBold
             )
         }
     }
@@ -545,6 +917,7 @@ private fun EmergencyActionsCard() {
 
 @Composable
 private fun FloatingSOSButton(
+    language: String,
     isEmergencyMode: Boolean,
     isCrashDetected: Boolean,
     modifier: Modifier = Modifier,
@@ -577,16 +950,44 @@ private fun FloatingSOSButton(
 
     val buttonText =
         when {
-            isEmergencyMode -> "RETURN TO NORMAL"
-            isCrashDetected -> "CANCEL COUNTDOWN"
-            else -> "EMERGENCY SOS"
+            isEmergencyMode ->
+                AppText.t(
+                    language,
+                    "return_normal"
+                )
+
+            isCrashDetected ->
+                AppText.t(
+                    language,
+                    "cancel_countdown"
+                )
+
+            else ->
+                AppText.t(
+                    language,
+                    "emergency_sos"
+                )
         }
 
     val subtitleText =
         when {
-            isEmergencyMode -> "Tap to reset emergency mode"
-            isCrashDetected -> "Tap to cancel safety countdown"
-            else -> "Hold steady. RoadSOS is ready."
+            isEmergencyMode ->
+                AppText.t(
+                    language,
+                    "tap_reset"
+                )
+
+            isCrashDetected ->
+                AppText.t(
+                    language,
+                    "tap_cancel"
+                )
+
+            else ->
+                AppText.t(
+                    language,
+                    "roadsos_ready"
+                )
         }
 
     val mainColor =
@@ -613,6 +1014,7 @@ private fun FloatingSOSButton(
         Canvas(
             modifier = Modifier.matchParentSize()
         ) {
+
             val center =
                 Offset(
                     x = size.width / 2f,
@@ -627,7 +1029,7 @@ private fun FloatingSOSButton(
                         mainColor.copy(alpha = 0.25f * glowPulse)
                     )
                 ),
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(
+                cornerRadius = CornerRadius(
                     x = 36.dp.toPx(),
                     y = 36.dp.toPx()
                 )
@@ -740,7 +1142,14 @@ private fun FloatingSOSButton(
                             modifier = Modifier
                                 .size(14.dp)
                                 .clip(CircleShape)
-                                .background(Color.White.copy(alpha = glowPulse.coerceIn(0.75f, 1f)))
+                                .background(
+                                    Color.White.copy(
+                                        alpha = glowPulse.coerceIn(
+                                            0.75f,
+                                            1f
+                                        )
+                                    )
+                                )
                         )
                     }
                 }
@@ -757,8 +1166,8 @@ private fun areCoreRoadSOSPermissionsGranted(
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.CALL_PHONE,
-            Manifest.permission.SEND_SMS
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.CALL_PHONE
         )
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

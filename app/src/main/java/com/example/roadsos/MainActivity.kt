@@ -84,6 +84,10 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
+        window.setBackgroundDrawableResource(android.R.color.transparent)
+        window.statusBarColor = android.graphics.Color.rgb(7, 17, 31)
+        window.navigationBarColor = android.graphics.Color.rgb(7, 17, 31)
+
         if (
             intent?.getBooleanExtra(
                 "CRASH_TRIGGERED",
