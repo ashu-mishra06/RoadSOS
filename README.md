@@ -507,12 +507,12 @@ RoadSOS is an offline-first Android crash emergency prototype that detects crash
 
 ## Team Fuzeppers
 
-| Member                | Role                             |
-| --------------------- | -------------------------------- |
-| Ashutosh Mishra       | DB, Frontend and App Integration |
-| Satvik Jain           | ML and Documentation             |
-| Arpit Singh Bhadoriya | UI Integration                   |
-| Vivek Jangela         | Frontend and App Integration     |
+| Member                | Role                                            |
+| --------------------- | ----------------------------------------------- |
+| Ashutosh Mishra       | DB, Frontend, App Integration and Documentation |
+| Satvik Jain           | ML and Presentation                             |
+| Arpit Singh Bhadoriya | UI Integration                                  |
+| Vivek Jangela         | Frontend and App Integration                    |
 
 ---
 
