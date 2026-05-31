@@ -1,457 +1,361 @@
-# RoadSOS — Offline AI Crash Emergency Assistant
+# RoadSOS — Offline Crash Emergency Assistant
 
 <div align="center">
 
-<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=700&size=26&duration=3000&pause=700&color=FF1744&center=true&vCenter=true&width=850&lines=AI-powered+Crash+Detection;Offline+Emergency+Service+Finder;Smart+SOS+Countdown;Built+for+Road+Safety+%F0%9F%9A%97" alt="Typing SVG" />
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=700&size=26&duration=2800&pause=700&color=FF1744&center=true&vCenter=true&width=950&lines=Crash+Emergency+Prototype;Smart+SOS+Countdown;Last-Known+Location+Fallback;Offline+Emergency+Lookup;Built+for+Road+Safety" alt="RoadSOS Typing Animation" />
 
 <br/>
 
 ![Android](https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge\&logo=android\&logoColor=white)
 ![Kotlin](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-7F52FF?style=for-the-badge\&logo=kotlin\&logoColor=white)
-![AI](https://img.shields.io/badge/AI-On--Device-FF1744?style=for-the-badge)
-![Offline](https://img.shields.io/badge/Offline--First-Emergency%20Ready-00C853?style=for-the-badge)
-![Prototype](https://img.shields.io/badge/Status-Prototype-blue?style=for-the-badge)
+![Offline](https://img.shields.io/badge/Offline--First-Local%20Emergency%20Flow-00C853?style=for-the-badge)
+![SQLite](https://img.shields.io/badge/Database-SQLite-2563EB?style=for-the-badge)
+![Prototype](https://img.shields.io/badge/Status-Prototype%201-FF9800?style=for-the-badge)
 
 </div>
 
 ---
 
-##  What is RoadSOS?
+## The Idea
 
-**RoadSOS** is an Android-based emergency assistant designed to detect possible road accidents using **on-device AI crash sound detection** and trigger a smart emergency response flow.
+**RoadSOS** is an Android emergency-response prototype built to reduce the delay between a possible road accident and the first human response.
 
-It listens for crash-like sounds, starts a safety countdown, allows the user to cancel false alerts, and activates emergency mode if the countdown completes.
+It listens for crash-like events, starts a false-alarm countdown, and if the user does not cancel, it moves into emergency mode.
 
-RoadSOS is designed for situations where every second matters.
-
----
-
-## Core Idea
+From there, RoadSOS can send SOS messages to saved contacts, attach current or last-known location, optionally attempt an emergency call, show nearby offline emergency services, and save the event locally.
 
 ```text
-Crash detected → Countdown starts → User can cancel → Emergency mode activates
+Detect → Countdown → Alert → Locate → Assist → Record
 ```
 
-RoadSOS focuses on:
-
-* Local AI-based crash sound monitoring
-* Emergency countdown before alert activation
-* Offline-first emergency service assistance
-* User medical profile for emergency context
-* Clean and fast Android experience
+This is **Prototype 1**: a working emergency workflow prototype, not a certified crash-response system.
 
 ---
 
-## RoadSOS Emergency Flow
+## Why This Matters
+
+After an accident, the victim may be unconscious, injured, shocked, or unable to unlock the phone. In many cases, help is delayed not because help is unavailable, but because no one knows the accident happened quickly enough.
+
+RoadSOS focuses on that first-response gap.
+
+It is designed around three practical questions:
 
 ```text
-┌────────────────────────────┐
-│    Crash-like Sound Heard   │
-└──────────────┬─────────────┘
-               │
-               ▼
-┌────────────────────────────┐
-│     AI Confidence Check     │
-└──────────────┬─────────────┘
-               │
-               ▼
-┌────────────────────────────┐
-│      Safety Countdown       │
-└──────────────┬─────────────┘
-               │
-       ┌───────┴────────┐
-       │                │
-       ▼                ▼
-┌──────────────┐  ┌────────────────────┐
-│ User Cancels │  │ No Cancellation    │
-└──────┬───────┘  └─────────┬──────────┘
-       │                    │
-       ▼                    ▼
-┌──────────────┐  ┌────────────────────┐
-│ Normal Mode  │  │ Emergency Mode     │
-└──────────────┘  └─────────┬──────────┘
-                            │
-                            ▼
-                  ┌────────────────────┐
-                  │ Fetch Location     │
-                  └─────────┬──────────┘
-                            │
-                            ▼
-                  ┌────────────────────┐
-                  │ Find Nearby Help   │
-                  └─────────┬──────────┘
-                            │
-                            ▼
-                  ┌────────────────────┐
-                  │ Prepare SOS Alert  │
-                  └────────────────────┘
+Can the phone notice something unusual?
+Can the user cancel if it is a false alarm?
+Can the phone still send useful emergency context if the user cannot respond?
 ```
 
 ---
 
-##  Key Features
+## Core Flow
 
-###  AI Crash Detection
+<div align="center">
 
-RoadSOS continuously monitors crash-like sounds using on-device audio processing.
+<pre>
+Crash-like sound / Manual SOS
+        ↓
+Countdown starts
+        ↓
+User can cancel
+        ↓
+Emergency mode
+        ↓
+SMS to emergency contacts
+        ↓
+Current or last-known location
+        ↓
+Optional emergency call
+        ↓
+Offline nearby services
+        ↓
+Local emergency history
+</pre>
 
-* Local audio monitoring
-* Crash confidence scoring
-* Background listening through foreground service
-* Reduced dependency on internet-based detection systems
+</div>
 
 ---
 
-### ⏱️ Smart SOS Countdown
+## What Works in Prototype 1
 
-When a possible crash is detected, RoadSOS starts a safety countdown before declaring an emergency.
+| Module               | Implementation                                  |
+| -------------------- | ----------------------------------------------- |
+| Crash-like detection | Audio monitoring service with ML helper         |
+| Manual SOS           | Large emergency button with countdown           |
+| False alarm handling | User can cancel before emergency action         |
+| Emergency contacts   | Multiple saved contacts supported               |
+| SMS alert            | Automatic SMS attempt to saved contacts         |
+| Auto-call            | Optional emergency call setting                 |
+| Location fallback    | Current location or saved last-known location   |
+| Offline help         | SQLite-based emergency service lookup           |
+| History              | Local emergency event log                       |
+| Profile              | Medical profile with editable details           |
+| UI                   | Jetpack Compose with dark/light mode            |
+| Language             | Multilingual support for major Indian languages |
+
+---
+
+## System Architecture
+
+<div align="center">
+
+<pre>
+┌──────────────────────────────┐
+│        Jetpack Compose UI     │
+└───────────────┬──────────────┘
+                ↓
+┌──────────────────────────────┐
+│          ViewModels           │
+│ Emergency / Location / Map    │
+│ Profile / Settings / History  │
+└───────────────┬──────────────┘
+                ↓
+┌──────────────────────────────┐
+│        Local Data Layer       │
+│ DataStore + SQLite Assets DB  │
+└───────────────┬──────────────┘
+                ↓
+┌──────────────────────────────┐
+│       Emergency Managers      │
+│ SMS / Call / Status / History │
+└───────────────┬──────────────┘
+                ↓
+┌──────────────────────────────┐
+│     Background Monitoring     │
+│ Audio Service + ML Helper     │
+└──────────────────────────────┘
+</pre>
+
+</div>
+
+---
+
+## Crash Detection Pipeline
+
+<div align="center">
+
+<pre>
+AudioMonitoringService
+        ↓
+AudioRecorderManager
+        ↓
+Audio chunks
+        ↓
+TensorFlow helper
+        ↓
+Crash-like score
+        ↓
+EmergencyEventManager
+        ↓
+Emergency countdown
+</pre>
+
+</div>
+
+The detection layer is intentionally described as **crash-like sound detection**, not certified crash detection. This keeps the prototype honest and technically grounded.
+
+---
+
+## Location Strategy
+
+Location is one of the most important parts of an emergency alert.
+
+RoadSOS does not silently track users when location is off. Instead, it uses a fallback strategy:
+
+<div align="center">
+
+<pre>
+Current location available
+        ↓
+Use current location
+
+Current location unavailable
+        ↓
+Use saved last-known location
+
+No saved location
+        ↓
+Send alert with location unavailable warning
+</pre>
+
+</div>
+
+Emergency messages clearly label whether the location is current, recent last-known, old last-known, or unavailable.
+
+---
+
+## Emergency SMS
+
+RoadSOS sends emergency SMS alerts to all saved emergency contacts.
+
+Example SMS:
 
 ```text
-Crash Detected
-      ↓
-Countdown Starts
-      ↓
-User Can Cancel
-      ↓
-Emergency Activated
+RoadSOS EMERGENCY ALERT
+
+Possible accident detected.
+
+Name: Ashutosh
+Blood Group: B+
+
+Location Type: Recent last-known location
+Location: https://maps.google.com/?q=23.xxxx,77.xxxx
+Last updated: 6 minutes ago
+Warning: location may be slightly old.
+
+Please call the user immediately and contact emergency services if unreachable.
 ```
 
-This helps reduce false positives during real-world usage and prototype testing.
+The goal is simple: give contacts enough information to act quickly.
 
 ---
 
-### 🆘 Manual Emergency SOS
+## Offline Emergency Lookup
 
-Users can also manually trigger SOS.
+RoadSOS includes an offline SQLite database stored inside app assets.
 
-The SOS button has three smart states:
+The Map screen can show nearby emergency services using current or last-known location.
 
-| State            | Button Action              |
-| ---------------- | -------------------------- |
-| Normal           | Starts emergency countdown |
-| Countdown active | Cancels countdown          |
-| Emergency active | Returns app to normal      |
-
----
-
-### 📍 Live Location Support
-
-RoadSOS fetches the user's current location and uses it during the emergency flow.
-
-* Latitude and longitude display
-* Accident location support
-* External map/navigation intent support
-
----
-
-###  Emergency Radar Map
-
-The Map screen shows a creative radar-style emergency service visualization.
-
-* Accident point at center
-* Nearby emergency services as radar dots
-* Offline emergency service data support
-* External map and route opening
-* Eye-catching emergency dashboard feel
-
----
-
-### 👤 Medical Profile
-
-On first launch, users are asked to enter basic emergency information:
-
-* Name
-* Blood group
-* Emergency contact
-* Weight
-* Height
-* Age
-
-This data is stored locally and can be viewed from the Profile section.
-
----
-
-### ⚙️ Permission Health Check
-
-Settings include a clean permission status card.
-
-It checks whether important permissions are granted:
-
-* Microphone
-* Location
-* Phone
-* SMS
-* Notifications
-
-If any required permission is missing, RoadSOS warns the user that the app may not function properly.
-
----
-
-### 🔐 Local Data Storage
-
-User profile information is stored locally using Android DataStore.
-
-No unnecessary cloud dependency is required for the prototype.
-
----
-
-## 🧭 App Navigation Flow
+Supported emergency categories include:
 
 ```text
-┌──────────────────┐
-│    App Launch    │
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│ Profile Complete?│
-└───────┬──────────┘
-        │
-   ┌────┴─────┐
-   │          │
-   ▼          ▼
-┌──────┐  ┌────────────────────┐
-│ Yes  │  │ No                 │
-└──┬───┘  └─────────┬──────────┘
-   │                │
-   │                ▼
-   │      ┌────────────────────┐
-   │      │ Profile Setup      │
-   │      └─────────┬──────────┘
-   │                │
-   ▼                ▼
-┌─────────────────────────────┐
-│          Home Screen         │
-└─────────────┬───────────────┘
-              │
-   ┌──────────┴───────────┐
-   │                      │
-   ▼                      ▼
-┌──────────────┐   ┌────────────────┐
-│ Map Screen   │   │ Settings Screen│
-└──────────────┘   └───────┬────────┘
-                           │
-          ┌────────────────┼────────────────┐
-          │                │                │
-          ▼                ▼                ▼
-   ┌─────────────┐  ┌──────────────┐  ┌──────────────┐
-   │ Profile View│  │ Permissions  │  │ Clear Data   │
-   └─────────────┘  └──────────────┘  └──────────────┘
+Hospitals
+Police stations
+Vehicle repair services
+Tow / puncture support
+Other emergency-related services
 ```
+
+This makes the app useful even when internet-based search is unavailable.
 
 ---
 
-##  Internal Working
+## Emergency History
 
-```text
-┌─────────────────────────────┐
-│   AudioMonitoringService    │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│    AudioRecorderManager     │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│       Audio Chunks          │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│    TensorFlow Lite Helper   │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│       Crash Score           │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│ Consecutive Detection Filter│
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│    EmergencyEventManager    │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│      EmergencyViewModel     │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│    Countdown Overlay UI     │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│      Emergency Mode         │
-└─────────────────────────────┘
-```
+Every completed emergency is stored locally.
+
+RoadSOS records:
+
+| Field             | Meaning                             |
+| ----------------- | ----------------------------------- |
+| Time              | When the emergency happened         |
+| Trigger           | Manual SOS or automatic detection   |
+| Location type     | Current, last-known, or unavailable |
+| Coordinates       | Location used during emergency      |
+| SMS status        | SMS attempt result                  |
+| Call status       | Auto-call result                    |
+| Auto-call setting | Whether auto-call was enabled       |
+
+This creates a small audit trail for testing, debugging, and demonstration.
 
 ---
 
-##  System Architecture
-
-```text
-                          ┌──────────────────────┐
-                          │  Jetpack Compose UI  │
-                          └──────────┬───────────┘
-                                     │
-                                     ▼
-                          ┌──────────────────────┐
-                          │      ViewModels      │
-                          └───────┬───────┬──────┘
-                                  │       │
-                                  │       ▼
-                                  │   ┌──────────────────────┐
-                                  │   │ Profile DataStore    │
-                                  │   └──────────────────────┘
-                                  │
-                                  ▼
-                          ┌──────────────────────┐
-                          │ Emergency State Flow │
-                          └──────────┬───────────┘
-                                     ▲
-                                     │
-┌──────────────────────┐     ┌───────┴──────────┐
-│ Audio Monitoring     │────▶│ TensorFlow Helper │
-│ Foreground Service   │     └──────────────────┘
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│ AudioRecorderManager │
-└──────────────────────┘
-
-Other Modules:
-┌──────────────────────┐
-│ Location Provider    │
-├──────────────────────┤
-│ Offline Service DB   │
-├──────────────────────┤
-│ Map Intent Helper    │
-└──────────────────────┘
-```
-
----
-
-##  Screens / Modules
+## App Modules
 
 ```text
 RoadSOS
 │
-├── Home Screen
-│   ├── Minimal protection status
-│   ├── Current location
-│   ├── Crash detection status
-│   └── Animated SOS button
+├── Home
+│   ├── SOS button
+│   ├── Countdown overlay
+│   ├── Protection status
+│   └── SMS / call / location status
 │
-├── Map Screen
+├── Map
 │   ├── Emergency radar
-│   ├── Nearby services
-│   ├── Open map
-│   └── Route navigation
+│   ├── Offline service lookup
+│   └── Navigation intents
 │
-├── Settings Screen
-│   ├── Profile card
-│   ├── Permissions manager
-│   └── Logout / clear user data
+├── Profile
+│   ├── Medical details
+│   ├── Multiple emergency contacts
+│   └── Language selection
 │
-└── Profile Screens
-    ├── First-time profile setup
-    └── Profile view/edit
+├── Settings
+│   ├── Auto-call toggle
+│   ├── Permission health
+│   ├── Theme toggle
+│   └── Emergency history access
+│
+└── History
+    ├── SOS event logs
+    ├── Trigger source
+    └── Emergency action status
 ```
 
 ---
 
-##  Tech Stack
+## Tech Stack
 
-| Layer              | Technology                  |
-| ------------------ | --------------------------- |
-| Language           | Kotlin                      |
-| UI                 | Jetpack Compose             |
-| Architecture       | MVVM-style ViewModels       |
-| Local Storage      | DataStore                   |
-| Audio Monitoring   | AudioRecord                 |
-| AI/ML              | TensorFlow Lite helper      |
-| Background Task    | Foreground Service          |
-| Navigation         | Jetpack Navigation Compose  |
-| Location           | Android Location APIs       |
-| Database Direction | Offline SQLite / Room-ready |
+| Layer           | Technology                      |
+| --------------- | ------------------------------- |
+| Language        | Kotlin                          |
+| UI              | Jetpack Compose                 |
+| Architecture    | ViewModel-based MVVM style      |
+| Local Storage   | DataStore                       |
+| Offline DB      | SQLite asset database           |
+| Audio Capture   | AudioRecord                     |
+| ML Helper       | TensorFlow Lite helper          |
+| Background Work | Foreground service              |
+| Navigation      | Navigation Compose              |
+| Location        | Android Location APIs           |
+| SMS             | SmsManager                      |
+| Call            | Android call intent             |
+| Maps            | External map/navigation intents |
 
 ---
 
-##  Project Structure
+## Simplified Project Structure
 
 ```text
-com.example.roadsos
+RoadSOS
 │
-├── MainActivity.kt
-│
-├── navigation
-│   └── AppNavigation.kt
-│
-├── ui
-│   ├── screens
-│   │   ├── home
-│   │   │   └── HomeScreen.kt
-│   │   ├── map
-│   │   │   └── MapScreen.kt
-│   │   ├── profile
-│   │   │   ├── ProfileSetupScreen.kt
-│   │   │   └── ProfileViewScreen.kt
-│   │   └── settings
-│   │       └── SettingsScreen.kt
+├── app/src/main
+│   ├── AndroidManifest.xml
+│   ├── assets
+│   │   ├── crash_model.tflite
+│   │   ├── labels.csv
+│   │   └── roadsos_india.db
 │   │
-│   ├── components
-│   │   ├── BottomNavBar.kt
-│   │   └── EmergencyOverlay.kt
-│   │
-│   └── theme
-│
-├── services
-│   └── AudioMonitoringService.kt
-│
-├── utils
-│   ├── AudioRecorderManager.kt
-│   ├── MapIntentHelper.kt
-│   └── CategoryUtils.kt
-│
-├── ml
-│   └── TensorflowHelper.kt
-│
-├── data
-│   ├── local
-│   └── profile
-│       ├── UserProfile.kt
-│       └── UserProfileDataStore.kt
-│
-└── viewmodel
-    ├── EmergencyViewModel.kt
-    ├── EmergencyEventManager.kt
-    ├── LocationViewModel.kt
-    ├── EmergencyServicesViewModel.kt
-    └── UserProfileViewModel.kt
+│   └── java/com/example/roadsos
+│       ├── MainActivity.kt
+│       ├── navigation
+│       ├── ui
+│       │   ├── components
+│       │   └── screens
+│       │       ├── home
+│       │       ├── map
+│       │       ├── profile
+│       │       ├── settings
+│       │       ├── history
+│       │       └── onboarding
+│       │
+│       ├── viewmodel
+│       ├── data
+│       │   ├── local
+│       │   ├── profile
+│       │   ├── settings
+│       │   ├── location
+│       │   ├── history
+│       │   └── repository
+│       │
+│       ├── service
+│       ├── ml
+│       ├── audio
+│       ├── sms
+│       └── utils
 ```
 
 ---
 
-##  Required Permissions
-
-RoadSOS requires the following permissions for full functionality:
+## Required Permissions
 
 ```xml
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-<uses-permission android:name="android.permission.CALL_PHONE" />
 <uses-permission android:name="android.permission.SEND_SMS" />
+<uses-permission android:name="android.permission.CALL_PHONE" />
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
@@ -461,121 +365,18 @@ RoadSOS requires the following permissions for full functionality:
 
 ---
 
-##  Prototype Testing Guide
-
-### 1. Install APK
-
-Build APK from Android Studio:
+## Run Locally
 
 ```bash
-./gradlew assembleDebug
-```
-
-APK location:
-
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
-
----
-
-### 2. First Launch
-
-When the app opens for the first time:
-
-1. Fill profile details
-2. Grant all permissions
-3. Open Settings
-4. Check permission status
-5. Test manual SOS
-6. Test Map screen
-
----
-
-### 3. Background Detection Test
-
-For best results:
-
-* Keep RoadSOS installed
-* Grant microphone permission
-* Allow notifications
-* Allow background activity from phone battery settings
-* Play crash-like sound during testing
-
----
-
-
-##  Why RoadSOS?
-
-Road accidents often require immediate response, but many emergency systems depend on manual action or internet availability.
-
-RoadSOS aims to provide:
-
-* Faster crash awareness
-* Offline-first emergency support
-* Local AI processing
-* Medical profile availability
-* Nearby emergency service assistance
-* False-alert cancellation window
-
----
-
-## 💡 Hackathon Impact
-
-RoadSOS is especially useful for:
-
-* Highways
-* Rural roads
-* Low-network areas
-* Solo riders/drivers
-* Night travel
-* Delayed emergency response zones
-
----
-
-## 🧠 Future Scope
-
-* Motion sensor crash detection
-* Gyroscope + accelerometer fusion
-* SMS alert with live location
-* Emergency contact calling
-* Offline SQLite emergency database integration
-* Nearby hospital/police/fire/tow search
-* Crash confidence explanation screen
-* Demo mode for controlled hackathon presentation
-* Wearable integration
-* Cloud emergency dashboard
-
----
-
-##  How to Run Locally
-
-### Requirements
-
-* Android Studio
-* Kotlin support
-* Android SDK
-* Android phone or emulator
-* Minimum Android version based on project configuration
-
-### Steps
-
-```bash
-git clone https://github.com/your-username/RoadSOS.git
+git clone https://github.com/ashu-mishra06/RoadSOS.git
 cd RoadSOS
 ```
 
-Open in Android Studio.
-
-Then:
+Open the project in Android Studio.
 
 ```text
 Sync Gradle → Build Project → Run App
 ```
-
----
-
-## 📦 Build APK
 
 Debug APK:
 
@@ -583,13 +384,7 @@ Debug APK:
 ./gradlew assembleDebug
 ```
 
-Release APK:
-
-```bash
-./gradlew assembleRelease
-```
-
-Debug APK output:
+APK output:
 
 ```text
 app/build/outputs/apk/debug/app-debug.apk
@@ -597,43 +392,118 @@ app/build/outputs/apk/debug/app-debug.apk
 
 ---
 
-## 👥 Team
-
-Add your team details here:
+## Testing Checklist
 
 ```text
-Team Name: Fuzeppers
+First Launch
+→ Fill profile
+→ Add contacts
+→ Grant permissions
+→ Verify Settings permission card
 
-Members:
+Manual SOS
+→ Press SOS
+→ Cancel countdown once
+→ Trigger again
+→ Let emergency activate
+→ Check SMS/call status
+→ Check Emergency History
 
- Ashutosh Mishra {databse and app integration}
+Crash-like Detection
+→ Keep monitoring active
+→ Play crash-like sound
+→ Wait for countdown
+→ Verify emergency flow
 
- Satvik Jain {ML and documentation}
+Location Fallback
+→ Turn location ON once
+→ Let app save location
+→ Turn location OFF
+→ Trigger SOS
+→ Verify last-known location in SMS/map
 
- Arpit Singh Bhadoriya {UI integration}
-
- Vivek Jhangela {frontend and app integration}
-
+Offline Check
+→ Turn internet OFF
+→ Keep location ON
+→ Verify offline DB lookup
 ```
 
 ---
 
-##  Disclaimer
+## Prototype Boundaries
 
-RoadSOS is currently a prototype built for learning, testing, and hackathon demonstration purposes.
+RoadSOS Prototype 1 is functional, but it is not production-certified.
 
-It should not be used as a certified emergency response system without proper validation, regulatory approval, and real-world testing.
+Known boundaries:
+
+```text
+Audio-only detection may cause false positives.
+Some real crashes may not produce detectable sound.
+SMS status means send attempt, not delivery confirmation.
+Android background restrictions may affect monitoring on some phones.
+Auto-calling must be handled carefully.
+Location cannot be fetched if location is off and no last-known location exists.
+Offline service quality depends on database quality.
+```
 
 ---
 
-## ❤️ Built With Purpose
+## Responsible Design Choices
+
+RoadSOS is built around safety-first assumptions:
+
+```text
+Do not alert instantly
+→ Use countdown
+
+Do not pretend old location is live
+→ Label last-known location clearly
+
+Do not depend fully on internet
+→ Use local database and local storage
+
+Do not silently track users
+→ Respect location permissions
+
+Do not rely on only one contact
+→ Support multiple emergency contacts
+```
+
+---
+
+## Demo Line
+
+```text
+RoadSOS is an offline-first Android crash emergency prototype that detects crash-like events locally, starts a false-alarm countdown, sends SOS alerts with current or last-known location, optionally attempts emergency calling, and stores a local emergency history.
+```
+
+---
+
+## Team Fuzeppers
+
+| Member                | Role                             |
+| --------------------- | -------------------------------- |
+| Ashutosh Mishra       | DB, Frontend and App Integration |
+| Satvik Jain           | ML and Documentation             |
+| Arpit Singh Bhadoriya | UI Integration                   |
+| Vivek Jangela         | Frontend and App Integration     |
+
+---
+
+## Disclaimer
+
+RoadSOS is a hackathon prototype built for learning, demonstration, and research.
+
+It is **not a certified emergency response system** and should not be used as a replacement for official emergency services without real-world validation, legal review, regulatory approval, and safety testing.
+
+---
 
 <div align="center">
 
-### 🚗 RoadSOS
+### RoadSOS
 
 **Because every second after a crash matters.**
 
-<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=20&duration=2500&pause=600&color=22C55E&center=true&vCenter=true&width=700&lines=Detect.;Countdown.;Alert.;Assist.;Save+Lives." alt="RoadSOS Animation" />
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=20&duration=2500&pause=600&color=22C55E&center=true&vCenter=true&width=760&lines=Detect.;Countdown.;Alert.;Locate.;Record." alt="RoadSOS Animation" />
 
 </div>
