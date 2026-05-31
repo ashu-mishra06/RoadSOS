@@ -16,6 +16,32 @@
 
 ---
 
+## Hackathon Snapshot
+
+<pre>
+Problem Statement: 1.3 RoadSoS — Emergency Response Optimization  
+        
+Team: Fuzeppers  
+        
+Project Type: Android offline-first emergency assistant  
+        
+Core Claim: On-device crash-like sound detection + false-alarm countdown + emergency SMS/call + offline nearby service lookup  
+        
+Prototype Status: Working Prototype 1  
+        
+Final DB Size: 7.46 MB  
+        
+TFLite Model Size: 1.1 MB  
+        
+APK Size: ~40 MB
+        
+</pre>
+
+```text
+This prototype is designed for hackathon demonstration and first-response support, not as a certified emergency dispatch system.
+```
+---
+
 ## The Idea
 
 **RoadSOS** is an Android emergency-response prototype built to reduce the delay between a possible road accident and the first human response.
