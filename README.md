@@ -524,6 +524,15 @@ It is **not a certified emergency response system** and should not be used as a 
 
 ---
 
+## Copyright Notice
+
+© 2026 Ashutosh Mishra / Team Fuzeppers. All rights reserved.
+
+This project is publicly available for portfolio, educational review, and hackathon evaluation purposes only.  
+Unauthorized copying, redistribution, modification, commercial use, or claiming this project as your own is not permitted without written permission.
+
+---
+
 <div align="center">
 
 ### RoadSOS
